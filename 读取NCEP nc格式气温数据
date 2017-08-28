@@ -1,0 +1,29 @@
+clc;
+clear;
+lon=ncread('TEM.nc','lon');%读取经度
+lat=ncread('TEM.nc','lat').';%读取纬度
+air=ncread('TEM.nc','air').';%读取气温
+X=find(lon>180);%找出经度＞180
+lon(X)=lon(X)-360;%经度＞180的减去360
+lon=sort(lon);%将经度从小到大排列
+% 调整数组结构
+air1=air(:,74:144);%取74列到144列数据
+air2=air(:,1:73);%取1列到73列数据
+air3=[air1,air2];%拼接，达到行列目的
+C=contourf(lon,lat,air3,15);;%绘制气温等值线，等值线条数为20条
+clabel(C);
+hold on %图形保持
+%标注设置
+title('temperature','FontSize',16)%标题
+xlabel('Longitude','FontSize',12);%X轴标注
+ylabel('Latitude','FontSize',12);%Y轴标注
+zlabel('tenperature(℃)','FontSize',12);%Z轴标注
+%% 
+geoshow('world.shp','color','g')%加载世界轮廓线
+%% 
+figure(2)%创建图形窗口2
+surf(lon,lat,air3)%绘制曲面三维图
+title('temperature')%标题
+xlabel('Longitude','FontSize',12);%X轴标注
+ylabel('Latitude','FontSize',12);%Y轴标注
+zlabel('tenperature(℃)','FontSize',12);%Z轴标注
