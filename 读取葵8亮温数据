@@ -1,0 +1,17 @@
+clc;
+clear;
+lon=ncread('H08.nc','longitude');%读取经度
+lat=ncread('H08.nc','latitude');%读取纬度
+tbb=ncread('H08.nc','tbb_07')';%读取tbb
+imagesc(lon,lat,tbb)
+colormap(bone)
+colormap(hsv(180))
+hold on
+%标注设置
+title('temperature','FontSize',16)%标题
+xlabel('Longitude','FontSize',12);%X轴标注
+ylabel('Latitude','FontSize',12);%Y轴标注
+zlabel('tenperature(℃)','FontSize',12);%Z轴标注
+%% 
+geoshow('world.shp','color','r')%加载世界轮廓线
+%% 
