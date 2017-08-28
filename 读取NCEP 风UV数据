@@ -1,0 +1,34 @@
+clc;
+clear;
+lon=ncread('u.nc','lon');%读取经度
+lat=ncread('u.nc','lat').';%读取纬度
+u=ncread('u.nc','uwnd').';%读取U风
+v=ncread('v.nc','vwnd').';%读取V风
+X=find(lon>180);%找出经度＞180
+lon(X)=lon(X)-360;%经度＞180的减去360
+lon=sort(lon);%将经度从小到大排列
+%% 调整数组结构
+u1=u(:,74:144);%取74列到144列U风
+u2=u(:,1:73);%取1列到73列数据U风
+u3=[u1,u2];%拼接，达到行列目的
+v1=v(:,74:144);%取74列到144列V风
+v2=v(:,1:73);%取1列到73列数据V风
+v3=[v1,v2];%拼接，达到行列目的
+%% 计算风速
+u4=u3.*u3;%u风平方
+v4=v3.*v3;%v风平方
+b=u4+v4;%风速矩阵
+ws=sqrt(b);%风速开方
+c=contourf(lon,lat,ws,12);%绘制风速等值线
+hold on
+quiver(lon,lat,u3,v3,2)%绘制风场图,箭头长度为2
+%%标注设置
+%axis([50,150,15,75,0,30]);%设置坐标轴范围
+title('wind','FontSize',16)%标题
+xlabel('Longitude','FontSize',12);%X轴标注
+ylabel('Latitude','FontSize',12);%Y轴标注
+zlabel('tenperature(℃)','FontSize',12);%Z轴标注
+clabel(c)%等值线标注
+%% 加载shp文件
+geoshow('world.shp','color','r')%加载世界轮廓线
+geoshow('china.shp')%加载中国政区
