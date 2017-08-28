@@ -1,0 +1,6 @@
+clc;
+clear
+lon=h5read('NDB.h5','/All_Data/VIIRS-DNB-GEO_All/Longitude');
+lat=h5read('NDB.h5','/All_Data/VIIRS-DNB-GEO_All/Latitude');
+NDB=h5read('NDB.h5','/All_Data/VIIRS-DNB-SDR_All/Radiance');
+pcolor(lat,lon,NDB)
