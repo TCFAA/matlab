@@ -1,0 +1,107 @@
+clc %清屏
+clear %清内存变量
+cd('D:\my matlab\TEM')%
+filenames = ls('*.txt');%以字符串数组的形式列出该路径下所有的txt文件
+[m,n] = size(filenames);%获取filenames的行列数
+for j = 1:m
+  fid=dlmread(char(filenames(j,:)));%读入数据
+  matname=char(filenames(j,36:41));%取时间作为文件名
+  save(matname,'fid');%转为mat格式，保存的数据是前面生成的fid数据
+  % xlswrite(matname,fid);%转为xls格式
+  JDT=[matname,'转换完毕!'];
+  disp(JDT)%显示JDT
+end
+%% 合并上一节生成的mat文件
+clc %清屏
+clear %清内存变量
+cd('D:\my matlab\TEM');
+filenames = ls('*.mat');%以字符串数组的形式列出该路径下所有的mat文件
+[m,n] = size(filenames);%获取filenames的行列数
+g=[];%创建空集来接收循环出来的数据，g到最后是合并后的数据
+for j = 1:m
+    d=load(filenames(j,:));%
+    e=struct2cell(d);
+    f=cell2mat(e);
+   clear d e;
+  g=cat(1,g,f);%联结数组，其实就是将旧的g和f联结成新的g
+end  
+save('tem','g');%保存文件名为pre的mat文件，保存的数据是g
+
+%% 按站点拆分
+clc %清屏
+clear %清内存变量
+cd('D:\my matlab\TEM');
+load('tem')
+g=sortrows(g,[1,5,6,7]);%将g数组按第1、5、6、7列的数值来进行排列。分别是按站号、年月日来排列
+[u,v] = unique(g(:,1));%查找第一列中不同的数及所在的位置
+cd('D:\my matlab\TEM\zhandian')
+q = 1;
+    for i = 1:length(v)-1;
+        matname=num2str(u(i));
+        dirname=['D:\qiwen\' matname];%新的文件夹名
+        a=['mkdir ' dirname];%创建站点文件夹
+        system(a);%创建命令
+        r=g(q:v(i+1)-1,:);
+        save(matname,'r');%写出
+        q = v(i+1);
+    end
+    r=g(q:end,:);%因为最后一个不能取，所以单独写一个
+    matname1=num2str(u(end))
+    save(matname1,'r')
+    
+    %% 按单站月份导出
+   clc;
+   clear;
+   cd('D:\my matlab\TEM\zhandian')
+%    filenames = ls('*.mat');%以字符串数组的形式列出该路径下所有的mat文件
+%    [m,n] = size(filenames);%获取filenames的行列数
+% 
+%    load(filenames(j,:));%
+load('54342')
+   aa=r(:,8:10);
+   aa(aa>20000)=nan;
+   aa=aa/10;
+   r(:,8:10)=aa;
+   r=sortrows(r,[6,5,7]);
+   [u,v]=unique(r(:,6));
+%     www=char(filenames(j,1:5))
+     q = 1;
+    for i = 1:length(v)-1
+        matname=num2str(u(i));
+        t=r(q:v(i+1)-1,:);
+        save(strcat('D:\qiwen\','54342','\',matname,'.mat'));
+        q = v(i+1);
+    end
+       t=r(q:end,:);
+       matname1=num2str(u(end));
+       save(strcat('D:\qiwen\','54342','\',matname1,'.mat'));
+ 
+    %% 计算各月份气温＞某值的次数
+clc %清屏
+clear %清内存变量
+cd('D:\qiwen\54342') %切换当前工作目录
+filenames = ls('*.mat');%以字符串数组的形式列出该路径下所有的mat文件
+[m,n] = size(filenames);%获取filenames的行列数
+yy='沈阳最高气温＞35℃天数统计';
+hh='（统计年份为1951年—2016年，统计天数共24108天)';
+disp(yy)
+disp(hh)
+% s=[];
+% d=[];
+for j = 1:m
+load(filenames(j,:));%读入数据
+t1=t(:,9);
+n=find(t1>=35);
+s1=length(n);%统计第9行大于33的个数
+k=num2str(j);
+d1=s1/66;
+d1=num2str(d1);
+s1=num2str(s1);
+str=char(filenames(j,1:2));
+ A=isstrprop(str,'digit');
+ B=str(A);
+JDT=strcat('沈阳',B,'月＞35℃数量是:',s1,',平均每月出现',d1,'次');
+% s=[s;s1];
+% d=[d;d1];
+disp(JDT)%显示JDT
+end
