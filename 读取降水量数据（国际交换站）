@@ -1,0 +1,45 @@
+clc %清屏
+clear %清内存变量
+filenames = ls('*.txt');%以字符串数组的形式列出该路径下所有的txt文件
+[m,n] = size(filenames);%获取filenames的行列数
+for j = 1:m
+fid=dlmread(char(filenames(j,:)));%读入数据
+matname=char(filenames(j,36:41));%取时间作为文件名
+save(matname,'fid');%转为mat格式，保存的数据是前面生成的fid数据
+% xlswrite(matname,fid);%转为xls格式
+JDT=[matname,'转换完毕!'];
+disp(JDT)%显示JDT
+end
+%% 合并上一节生成的mat文件
+clc %清屏
+clear %清内存变量
+filenames = ls('*.mat');%以字符串数组的形式列出该路径下所有的mat文件
+[m,n] = size(filenames);%获取filenames的行列数
+g=[];%创建空集来接收循环出来的数据，g到最后是合并后的数据
+for j = 1:m
+d=load(filenames(j,:));%
+e=struct2cell(d);
+f=cell2mat(e);
+clear d e;
+g=cat(1,g,f);%联结数组，其实就是将旧的g和f联结成新的g
+end  
+save('pre','g');%保存文件名为pre的mat文件，保存的数据是g
+%% 按站点拆分
+clc %清屏
+clear %清内存变量
+g=load('pre')
+aa=g(:,10);%取第10列的降水量数据
+aa(aa>20000)=0;%将aa中＞20000的数据替换成0（原始数据中用32766来表示微量降水）
+g(:,10)=aa; %将aa替换原来的第10列数据
+g=sortrows(g,[1,5,6,7]);%将g数组按第1、5、6、7列的数值来进行排列。分别是按站号、年月日来排列
+[u,v] = unique(g(:,1));%查找第一列中不同的数及所在的位置
+q = 1;
+    for i = 1:length(v)-1
+        matname=num2str(u(i));
+        r=g(q:v(i+1)-1,:);
+        save([matname,'.xls'],'r','-ascii');%写出
+        q = v(i+1);
+    end
+
+    
+
